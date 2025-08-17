@@ -14,14 +14,18 @@ PVP kills use a special entity type identifier:
     "label": "Player Kills (PVP)",
     "entityScores": [
         {
-            "entityType": "PVP_PLAYER_KILL",
-            "scoreValue": 10
+            "entityType": "FoxLB_PVP_PlayerKill",
+            "scoreValue": 10,
+            "enableVehicleKills": true,
+            "vehicleKillMultiplier": 1.0
         }
     ]
 }
 ```
 
-**Important**: Use exactly `"PVP_PLAYER_KILL"` - this is the system constant for player kills.
+**Important**: Use exactly `"FoxLB_PVP_PlayerKill"` - this is the current system constant for player kills.
+
+> **Legacy Support**: The old `"PVP_PLAYER_KILL"` identifier is still supported but deprecated. Use `"FoxLB_PVP_PlayerKill"` for new configurations.
 
 ## ⚙️ PVP Configuration Options
 
@@ -31,7 +35,12 @@ PVP kills use a special entity type identifier:
     "id": "pvpKills",
     "label": "Player Kills (PVP)",
     "entityScores": [
-        {"entityType": "PVP_PLAYER_KILL", "scoreValue": 10}
+        {
+            "entityType": "FoxLB_PVP_PlayerKill",
+            "scoreValue": 10,
+            "enableVehicleKills": true,
+            "vehicleKillMultiplier": 0.8
+        }
     ],
     "rewardThresholds": [3, 5, 10, 20],
     "deathPenalty": 0.25,
@@ -70,8 +79,14 @@ The system automatically detects PVP kills through:
 
 #### **Indirect Kills**
 - Vehicle strikes (running over players)
-- Explosion kills (landmines, grenades)
+- Explosion kills (landmines, grenades)  
 - Environmental kills caused by players
+
+#### **Vehicle Kill Detection**
+The system can differentiate between:
+- **Weapon kills**: Traditional firearm/melee weapon kills
+- **Vehicle kills**: Car/truck impacts, explosions from vehicles
+- **Kill method tracking**: Each method can have different score multipliers
 
 #### **Smart Attribution**
 - **Killer identification**: Uses `LeaderboardUtils.ResolveAttacker()`
@@ -81,7 +96,15 @@ The system automatically detects PVP kills through:
 ### Kill Detection Examples
 ```
 [FoxBoxLeaderboard] PVP Kill detected - Attacker: PlayerA (SteamID) killed Victim: PlayerB
+[FoxBoxLeaderboard] Kill method detected: WEAPON_KILL (multiplier: 1.0)
 [FoxBoxLeaderboard] *** KILL REGISTERED *** for pvpKills - Kills: 2 -> 3, Score: 20 -> 30 (+10)
+```
+
+**Vehicle Kill Example:**
+```
+[FoxBoxLeaderboard] PVP Kill detected - Attacker: PlayerA (SteamID) killed Victim: PlayerB  
+[FoxBoxLeaderboard] Kill method detected: VEHICLE_KILL (multiplier: 0.8)
+[FoxBoxLeaderboard] *** KILL REGISTERED *** for pvpKills - Kills: 2 -> 3, Score: 20 -> 28 (+8)
 ```
 
 ## 🎁 PVP Reward Examples
@@ -181,6 +204,103 @@ Without protection, players could:
 - **Keep rewards** through death
 - **High thresholds** for exclusive rewards
 
+## 🚗 PVP Vehicle Kill Configuration
+
+### Vehicle Kill Settings
+Configure how vehicle kills are handled differently from weapon kills:
+
+```json
+{
+    "entityType": "FoxLB_PVP_PlayerKill",
+    "scoreValue": 20,
+    "enableVehicleKills": true,
+    "vehicleKillMultiplier": 0.6
+}
+```
+
+### Vehicle Kill Strategies
+
+#### **Balanced Approach (Recommended)**
+```json
+{
+    "vehicleKillMultiplier": 0.7
+}
+```
+- **Weapon kill**: 20 points (full value)
+- **Vehicle kill**: 14 points (reduced skill requirement)
+- **Promotes weapon skill** while allowing vehicle tactics
+
+#### **Vehicle Discouraged**
+```json
+{
+    "vehicleKillMultiplier": 0.3
+}
+```  
+- **Weapon kill**: 20 points
+- **Vehicle kill**: 6 points (heavily reduced)
+- **Strongly favors** traditional PVP combat
+
+#### **Vehicle Encouraged**
+```json
+{
+    "vehicleKillMultiplier": 1.5
+}
+```
+- **Weapon kill**: 20 points
+- **Vehicle kill**: 30 points (bonus)
+- **Rewards creative** tactical gameplay
+
+#### **No Vehicle Kills**
+```json
+{
+    "enableVehicleKills": false
+}
+```
+- **Vehicle kills ignored** completely
+- **Only weapon kills** count toward leaderboards
+- **Pure combat focus**
+
+### PVP Vehicle Kill Examples
+
+#### **Competitive Server** (Weapon Focus)
+```json
+{
+    "entityType": "FoxLB_PVP_PlayerKill",
+    "scoreValue": 25,
+    "enableVehicleKills": true,
+    "vehicleKillMultiplier": 0.4
+}
+```
+- Encourages skilled weapon combat
+- Vehicle kills still possible but less rewarding
+- Maintains competitive integrity
+
+#### **Tactical Server** (Mixed Combat)
+```json
+{
+    "entityType": "FoxLB_PVP_PlayerKill", 
+    "scoreValue": 15,
+    "enableVehicleKills": true,
+    "vehicleKillMultiplier": 1.2
+}
+```
+- Rewards tactical vehicle use
+- Slightly favors vehicle creativity
+- Balanced risk/reward system
+
+#### **Chaos Server** (Vehicle Mayhem)
+```json
+{
+    "entityType": "FoxLB_PVP_PlayerKill",
+    "scoreValue": 10,
+    "enableVehicleKills": true,
+    "vehicleKillMultiplier": 2.0
+}
+```
+- Big bonuses for vehicle kills
+- Encourages chaotic vehicle combat
+- Fun-focused gameplay style
+
 ### Casual PVP
 ```json
 {
@@ -207,7 +327,7 @@ Track both PVP and PVE kills in one leaderboard:
     "entityScores": [
         {"entityType": "Zmb", "scoreValue": 1},
         {"entityType": "ZmbM_Soldier", "scoreValue": 3},
-        {"entityType": "PVP_PLAYER_KILL", "scoreValue": 20},
+        {"entityType": "FoxLB_PVP_PlayerKill", "scoreValue": 20},
         {"entityType": "Animal_UrsusArctos", "scoreValue": 15}
     ],
     "rewardThresholds": [25, 60, 150],
@@ -227,7 +347,7 @@ Run dedicated PVP and PVE leaderboards:
             "id": "pvpWarrior",
             "label": "PVP Warrior",
             "entityScores": [
-                {"entityType": "PVP_PLAYER_KILL", "scoreValue": 15}
+                {"entityType": "FoxLB_PVP_PlayerKill", "scoreValue": 15}
             ]
         },
         {
@@ -244,16 +364,18 @@ Run dedicated PVP and PVE leaderboards:
 ## 🐛 Troubleshooting PVP
 
 ### PVP Kills Not Registering
-1. **Check entity type**: Must be exactly `"PVP_PLAYER_KILL"`
+1. **Check entity type**: Must be exactly `"FoxLB_PVP_PlayerKill"` (or legacy `"PVP_PLAYER_KILL"`)
 2. **Verify leaderboard config**: Ensure PVP leaderboard exists
 3. **Check server logs**: Look for kill detection messages
 4. **Test kill scenarios**: Try different weapons/methods
+5. **Vehicle kill settings**: Verify `enableVehicleKills` if testing vehicle kills
 
 ### Wrong Kill Attribution
-1. **Review attacker resolution**: Check `LeaderboardUtils.ResolveAttacker()`
-2. **Vehicle kills**: Ensure driver attribution works
+1. **Review attacker resolution**: Check `LeaderboardUtils.ResolveAttackerWithMethod()`
+2. **Vehicle kills**: Ensure driver attribution works properly
 3. **Explosion kills**: Verify grenade/mine attribution
 4. **Weapon kills**: Check held weapon detection
+5. **Kill method detection**: Verify weapon vs vehicle kill differentiation
 
 ### Reward Issues
 1. **Exploit protection**: Check if auto-protection triggered

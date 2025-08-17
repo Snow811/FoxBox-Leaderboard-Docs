@@ -16,8 +16,8 @@ This folder contains comprehensive documentation for the FoxBox Leaderboards wit
 ## ⚙️ Configuration Guides
 
 ### **Core Features**
-- **Basic_Configuration.md** - Essential leaderboard setup and parameters
-- **PVP_Kill_Tracking.md** - Player vs Player leaderboards
+- **Basic_Configuration.md** - Essential leaderboard setup and parameters (includes vehicle kill options)
+- **PVP_Kill_Tracking.md** - Player vs Player leaderboards with vehicle kill detection
 
 ## 🔧 Support & Maintenance
 
@@ -33,10 +33,17 @@ This folder contains comprehensive documentation for the FoxBox Leaderboards wit
 - **Log Prefix**: `[FoxBoxLeaderboard]`
 
 ### **Leaderboard Types**
-1. **Zombie Kills** - Track infected eliminations
-2. **PVP Kills** - Player vs Player combat
-3. **Animal Hunting** - Wildlife tracking
-4. **Custom Types** - Define your own categories
+1. **Zombie Kills** - Track infected eliminations with robust event handling
+2. **PVP Kills** - Player vs Player combat with vehicle kill detection
+3. **Animal Hunting** - Wildlife tracking with enhanced timing fixes
+4. **Custom Types** - Define your own categories with vehicle kill options
+
+### **✨ Enhanced Features**
+- **Robust Kill Tracking** - Fixed timing issues for accurate kill attribution
+- **Vehicle Kill Detection** - Separate scoring for vehicle vs weapon kills
+- **Enhanced Debug Logging** - Detailed kill tracking information
+- **Posthumous Kill Attribution** - Handles one-shot kills and bleeding deaths
+- **Configurable Vehicle Multipliers** - Different scoring for different kill methods
 
 ## 🆘 Need Help?
 
@@ -44,16 +51,17 @@ This folder contains comprehensive documentation for the FoxBox Leaderboards wit
 2. Review server logs for `[FoxBoxLeaderboard]` messages  
 3. Verify your configuration with **Configuration_Examples.md**
 4. Test with **debug mode** enabled in the config file
+5. Check **PVP_Kill_Tracking.md** for vehicle kill setup details
 
 ## 📚 Available Documentation Files
 
 ### **✅ Files in this folder:**
-- **Server_Setup_Guide.md** - Complete installation walkthrough
+- **Server_Setup_Guide.md** - Complete installation walkthrough with vehicle kill setup
 - **Player_Guide.md** - In-game usage instructions  
-- **Basic_Configuration.md** - Core configuration parameters
-- **Configuration_Examples.md** - Working configs for different server types
-- **PVP_Kill_Tracking.md** - Player vs Player implementation
-- **Troubleshooting.md** - Common issues and solutions
+- **Basic_Configuration.md** - Core configuration parameters including vehicle kills
+- **Configuration_Examples.md** - Working configs with vehicle kill examples
+- **PVP_Kill_Tracking.md** - Player vs Player implementation with vehicle detection
+- **Troubleshooting.md** - Common issues, solutions, and vehicle kill debugging
 
 ### **📝 Additional Files Available on Request**
 Want more documentation? Let us know if you need:
@@ -66,5 +74,5 @@ Want more documentation? Let us know if you need:
 
 ---
 
-**Version**: 1.0   
+**Version**: 2.0 - Enhanced Kill Tracking & Vehicle Kill System   
 **Author**: FoxBoxCustoms

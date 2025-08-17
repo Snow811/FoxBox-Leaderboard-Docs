@@ -85,17 +85,19 @@
 ```JSON
 // Verify PVP configuration
 {
-    "entityType": "PVP_PLAYER_KILL"  // ✓ Must be exact
-    "entityType": "PLAYER_KILL"     // ❌ Wrong constant
+    "entityType": "FoxLB_PVP_PlayerKill"  // ✓ Current recommended
+    "entityType": "PVP_PLAYER_KILL"      // ✓ Legacy support  
+    "entityType": "PLAYER_KILL"          // ❌ Wrong constant
 }
 ```
 
 **Debug Steps**:
 ```
 1. Check server logs for "PVP Kill detected" messages
-2. Test different PVP scenarios (weapons, explosions)
+2. Test different PVP scenarios (weapons, explosions, vehicles)
 3. Verify both killer and victim have valid identities
 4. Check attacker resolution is working
+5. Test both weapon and vehicle PVP kills if enabled
 ```
 
 ### Configuration Issues
@@ -293,7 +295,151 @@
 5. Confirm no data conflicts
 ```
 
-## 📞 Getting Help
+## � Vehicle Kill Issues
+
+### Vehicle Kills Not Working
+**Symptoms**: Vehicle kills not being detected or scored differently
+
+#### **Configuration Issues**
+**Check your entity configuration**:
+```json
+{
+    "entityType": "FoxLB_PVP_PlayerKill",
+    "scoreValue": 20,
+    "enableVehicleKills": true,        // ✓ Must be true
+    "vehicleKillMultiplier": 0.8       // ✓ Valid multiplier
+}
+
+// Wrong configurations:
+{
+    "enableVehicleKills": false,       // ❌ Vehicle kills disabled
+    "vehicleKillMultiplier": 0         // ❌ Zero score for vehicle kills
+}
+```
+
+**Debug Steps**:
+1. **Enable debug mode**: Set `"debugMode": 1`
+2. **Check logs**: Look for kill method detection messages:
+   ```
+   [FoxBoxLeaderboard] Kill method detected: VEHICLE_KILL (multiplier: 0.8)
+   [FoxBoxLeaderboard] Kill method detected: WEAPON_KILL (multiplier: 1.0)
+   ```
+3. **Test scenarios**: Try both vehicle and weapon kills to compare
+4. **Verify scores**: Check if vehicle kill scores differ from weapon kills
+
+#### **Vehicle Kill Detection Not Working**
+**Symptoms**: All kills treated as weapon kills regardless of method
+
+**Solutions**:
+```
+✓ Check if ResolveAttackerWithMethod() is being used
+✓ Test different vehicle kill methods (collision, explosion)
+✓ Verify damage source chain analysis is working  
+✓ Check if KillMethodInfo class is properly implemented
+```
+
+**Common Log Messages**:
+```
+// Successful vehicle kill detection:
+[FoxBoxLeaderboard] Vehicle damage detected in chain
+[FoxBoxLeaderboard] Kill method: VEHICLE_KILL
+
+// Failed detection (falls back to weapon):  
+[FoxBoxLeaderboard] No vehicle damage found, defaulting to WEAPON_KILL
+[FoxBoxLeaderboard] Kill method: WEAPON_KILL
+```
+
+### Vehicle Kill Scoring Issues
+
+#### **Wrong Score Calculation**
+**Symptoms**: Vehicle kills give unexpected scores
+
+**Examples**:
+```json
+{
+    "scoreValue": 10,
+    "vehicleKillMultiplier": 1.5
+}
+// Expected: Vehicle kill = 15 points (10 × 1.5)
+// Weapon kill = 10 points (10 × 1.0)
+```
+
+**Debug Process**:
+1. **Check multiplication**: `vehicle_score = base_score × multiplier`
+2. **Verify logs**: Look for score calculation messages
+3. **Test edge cases**: Try multiplier values like 0.5, 2.0, etc.
+4. **Check rounding**: Verify fractional results are handled correctly
+
+#### **Vehicle Kills Being Ignored**
+**Symptoms**: Vehicle kills don't register at all
+
+**Common Causes**:
+```json
+{
+    "enableVehicleKills": false    // Vehicle kills completely disabled
+}
+
+// Or missing vehicle kill configuration entirely:
+{
+    "entityType": "Animal_UrsusArctos",
+    "scoreValue": 10
+    // Missing: enableVehicleKills and vehicleKillMultiplier
+}
+```
+
+### Animal Vehicle Kill Issues
+
+#### **Small Animals and Vehicles**
+**Symptoms**: Chicken/rabbit vehicle kills seem too easy
+
+**Recommended Configuration**:
+```json
+{
+    "entityType": "Animal_GallusGallusDomesticus", 
+    "scoreValue": 1,
+    "enableVehicleKills": false    // Too easy with vehicles
+},
+{
+    "entityType": "Animal_UrsusArctos",
+    "scoreValue": 20,
+    "enableVehicleKills": true,    // Challenging even with vehicles
+    "vehicleKillMultiplier": 1.5   // Bonus for creative kill
+}
+```
+
+### PVP Vehicle Kill Balance
+
+#### **Vehicle Kills Too Powerful**
+**Symptoms**: Players only using vehicles for PVP kills
+
+**Solutions**:
+```json
+{
+    "entityType": "FoxLB_PVP_PlayerKill",
+    "scoreValue": 25,
+    "enableVehicleKills": true,
+    "vehicleKillMultiplier": 0.4    // Reduce vehicle kill value
+}
+// Vehicle PVP kill = 10 points (25 × 0.4)  
+// Weapon PVP kill = 25 points (25 × 1.0)
+```
+
+#### **Vehicle Kills Completely Ignored** 
+**Symptoms**: Players complain vehicle kills don't count
+
+**Solutions**:
+```json
+{
+    "entityType": "FoxLB_PVP_PlayerKill",
+    "scoreValue": 20,
+    "enableVehicleKills": true,     // Enable them
+    "vehicleKillMultiplier": 0.7    // Give some value
+}
+// Vehicle PVP kill = 14 points (20 × 0.7)
+// Weapon PVP kill = 20 points (20 × 1.0)
+```
+
+## �📞 Getting Help
 
 ### Information to Gather
 When reporting issues, include:

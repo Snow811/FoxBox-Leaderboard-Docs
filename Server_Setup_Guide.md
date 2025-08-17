@@ -97,8 +97,135 @@ The system will automatically create default configuration on first run:
 #### **PVP Tracking**
 ```json
 "entityScores": [
-    {"entityType": "PVP_PLAYER_KILL", "scoreValue": 10}        // Player kills: 10 points
+    {
+        "entityType": "FoxLB_PVP_PlayerKill",
+        "scoreValue": 10,
+        "enableVehicleKills": true,
+        "vehicleKillMultiplier": 0.8
+    }
 ]
+```
+- Player weapon kills: 10 points (full value)
+- Player vehicle kills: 8 points (10 × 0.8)
+
+#### **Animal Hunting with Vehicle Options**
+```json
+"entityScores": [
+    {
+        "entityType": "Animal_GallusGallusDomesticus",
+        "scoreValue": 1,
+        "enableVehicleKills": false
+    },
+    {
+        "entityType": "Animal_UrsusArctos", 
+        "scoreValue": 15,
+        "enableVehicleKills": true,
+        "vehicleKillMultiplier": 1.5
+    }
+]
+```
+- Chickens: Only weapon kills count (1 point)
+- Bears: Weapon kills = 15 points, Vehicle kills = 23 points (bonus)
+
+## 🚗 Vehicle Kill Configuration
+
+### Understanding Vehicle Kills
+The system can differentiate between weapon kills and vehicle kills, allowing different scoring for each method.
+
+#### **Vehicle Kill Properties**
+```json
+{
+    "entityType": "Animal_UrsusArctos",
+    "scoreValue": 20,
+    "enableVehicleKills": true,        // Allow vehicle kills  
+    "vehicleKillMultiplier": 1.2       // 20% bonus for vehicle kills
+}
+```
+
+#### **Vehicle Kill Policies**
+
+**Disable Vehicle Kills** (Traditional Combat Only):
+```json
+{
+    "enableVehicleKills": false
+}
+```
+- Only weapon/melee kills will count
+- Vehicle kills are completely ignored
+- Promotes traditional combat skills
+
+**Equal Scoring** (Method Doesn't Matter):
+```json
+{
+    "enableVehicleKills": true,
+    "vehicleKillMultiplier": 1.0
+}
+```
+- Vehicle and weapon kills worth same points
+- Players can choose their preferred method
+- Balanced approach
+
+**Reduced Vehicle Scoring** (Weapon Preference):
+```json
+{
+    "enableVehicleKills": true,
+    "vehicleKillMultiplier": 0.6
+}
+```
+- Vehicle kills worth 60% of weapon kills
+- Encourages skillful weapon combat
+- Still allows vehicle tactics
+
+**Bonus Vehicle Scoring** (Creative Kills):
+```json
+{
+    "enableVehicleKills": true,
+    "vehicleKillMultiplier": 1.5
+}
+```
+- Vehicle kills worth 50% more than weapon kills
+- Rewards creative/tactical gameplay
+- Encourages vehicle utilization
+
+### Vehicle Kill Examples by Entity Type
+
+#### **Small Animals** (Usually Disabled):
+```json
+{
+    "entityType": "Animal_GallusGallusDomesticus",
+    "scoreValue": 1,
+    "enableVehicleKills": false    // Too easy with vehicles
+}
+```
+
+#### **Large Predators** (Often Bonus):
+```json
+{
+    "entityType": "Animal_UrsusArctos",
+    "scoreValue": 20,
+    "enableVehicleKills": true,
+    "vehicleKillMultiplier": 1.3   // Bonus for risky vehicle kill
+}
+```
+
+#### **PVP Combat** (Usually Reduced):
+```json
+{
+    "entityType": "FoxLB_PVP_PlayerKill",
+    "scoreValue": 25,
+    "enableVehicleKills": true,
+    "vehicleKillMultiplier": 0.7   // Promotes skill-based combat  
+}
+```
+
+#### **Zombie Hordes** (Often Equal or Bonus):
+```json
+{
+    "entityType": "Zmb",
+    "scoreValue": 1,
+    "enableVehicleKills": true,
+    "vehicleKillMultiplier": 1.2   // Slight bonus for horde clearing
+}
 ```
 
 ## 🎮 Player Experience

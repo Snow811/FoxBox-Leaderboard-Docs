@@ -54,11 +54,21 @@ $profile:\FoxBox_mods\FoxBoxLeaderboard\FoxBoxLeaderboardConfig.json
 
 ### Entity Scoring Configuration
 
-#### **Entity Score Object**
+#### **Standard Entity Score Object**
 ```json
 {
     "entityType": "Zmb",     // Entity identifier
     "scoreValue": 1          // Points awarded per kill
+}
+```
+
+#### **Enhanced Entity Score Object (with Vehicle Kills)**
+```json
+{
+    "entityType": "Animal_UrsusArctos",
+    "scoreValue": 5,              // Points for weapon kills
+    "enableVehicleKills": true,   // Allow vehicle kills for this entity
+    "vehicleKillMultiplier": 2.0  // Multiplier for vehicle kills (5 × 2.0 = 10 points)
 }
 ```
 
@@ -68,15 +78,68 @@ $profile:\FoxBox_mods\FoxBoxLeaderboard\FoxBoxLeaderboardConfig.json
     {"entityType": "Zmb", "scoreValue": 1},                    // All zombies
     {"entityType": "ZmbM_SoldierNormal", "scoreValue": 3},     // Specific zombie type
     {"entityType": "Animal_", "scoreValue": 2},                // All animals
-    {"entityType": "PVP_PLAYER_KILL", "scoreValue": 10}        // Player kills
+    {
+        "entityType": "Animal_UrsusArctos", 
+        "scoreValue": 5,
+        "enableVehicleKills": true,
+        "vehicleKillMultiplier": 2.0
+    },                                                          // Bears with vehicle kill bonus
+    {"entityType": "FoxLB_PVP_PlayerKill", "scoreValue": 10}   // Player kills
 ]
+```
+
+#### **Vehicle Kill Properties**
+
+| Field | Type | Description | Default |
+|-------|------|-------------|---------|
+| `enableVehicleKills` | Boolean | Allow vehicle kills for this entity | `false` |
+| `vehicleKillMultiplier` | Number | Score multiplier for vehicle kills | `1.0` |
+
+**Score Calculation**:
+- **Weapon Kill Score** = `scoreValue`
+- **Vehicle Kill Score** = `scoreValue × vehicleKillMultiplier` (if enabled)
+
+**Vehicle Kill Examples**:
+```json
+// Large animals - higher reward for vehicle kills
+{
+    "entityType": "Animal_UrsusArctos",
+    "scoreValue": 5,
+    "enableVehicleKills": true,
+    "vehicleKillMultiplier": 2.0  // Vehicle: 10 points, Weapon: 5 points
+}
+
+// Small animals - vehicle kills disabled
+{
+    "entityType": "Animal_GallusGallusDomesticus", 
+    "scoreValue": 1,
+    "enableVehicleKills": false   // Only weapon kills count
+}
+
+// PVP - lower reward for vehicle kills
+{
+    "entityType": "FoxLB_PVP_PlayerKill",
+    "scoreValue": 10,
+    "enableVehicleKills": true,
+    "vehicleKillMultiplier": 0.5  // Vehicle: 5 points, Weapon: 10 points
+}
 ```
 
 #### **Entity Matching Rules**
 - **Partial matching**: `"Zmb"` matches `"ZmbM_SoldierNormal"`
 - **First match wins**: Order matters in the array
 - **Case sensitive**: Must match exact capitalization
-- **Special types**: Use constants like `"PVP_PLAYER_KILL"`
+- **Special types**: Use constants like `"FoxLB_PVP_PlayerKill"`
+- **Vehicle kill detection**: Automatically detects vehicle vs weapon kills
+- **Backward compatibility**: Missing vehicle properties default to safe values
+
+#### **Kill Attribution System**
+The mod features **enhanced kill tracking** that handles DayZ's complex event timing:
+- **Robust event handling**: Fixes timing issues between EEHitBy and EEKilled events
+- **Posthumous kill detection**: Handles one-shot kills where events fire out of order
+- **Vehicle kill detection**: Analyzes damage source chain for vehicle involvement
+- **Double-counting prevention**: Boolean flags prevent duplicate kill records
+- **Attack timeout system**: 60-second attribution window for bleeding deaths
 
 ### Death Penalties
 
@@ -138,7 +201,12 @@ The system automatically prevents reward farming:
     "entityScores": [
         {"entityType": "Zmb", "scoreValue": 1},
         {"entityType": "ZmbM_Soldier", "scoreValue": 3},
-        {"entityType": "Animal_", "scoreValue": 2}
+        {
+            "entityType": "Animal_UrsusArctos",
+            "scoreValue": 8,
+            "enableVehicleKills": true,
+            "vehicleKillMultiplier": 1.5
+        }
     ],
     "rewardThresholds": [25, 50, 100],
     "deathPenalty": 0.4,
@@ -147,13 +215,18 @@ The system automatically prevents reward farming:
 }
 ```
 
-### PVP Focused (Player Kills)
+### PVP Focused (Player Kills with Vehicle Detection)
 ```json
 {
     "id": "pvpKills", 
     "label": "PVP Warrior",
     "entityScores": [
-        {"entityType": "PVP_PLAYER_KILL", "scoreValue": 15}
+        {
+            "entityType": "FoxLB_PVP_PlayerKill", 
+            "scoreValue": 15,
+            "enableVehicleKills": true,
+            "vehicleKillMultiplier": 0.6
+        }
     ],
     "rewardThresholds": [3, 5, 10],
     "deathPenalty": 0.25,
@@ -162,21 +235,34 @@ The system automatically prevents reward farming:
 }
 ```
 
-### Mixed Combat
+### Animal Hunter (Vehicle Kill Variety)
 ```json
 {
-    "id": "combatMaster",
-    "label": "Combat Master", 
+    "id": "animalHunter",
+    "label": "Animal Hunter",
     "entityScores": [
-        {"entityType": "Zmb", "scoreValue": 1},
-        {"entityType": "ZmbM_Soldier", "scoreValue": 3},
-        {"entityType": "PVP_PLAYER_KILL", "scoreValue": 20},
-        {"entityType": "Animal_UrsusArctos", "scoreValue": 15}
+        {
+            "entityType": "Animal_UrsusArctos",
+            "scoreValue": 5,
+            "enableVehicleKills": true,
+            "vehicleKillMultiplier": 2.0
+        },
+        {
+            "entityType": "Animal_BosTaurus",
+            "scoreValue": 3,
+            "enableVehicleKills": true, 
+            "vehicleKillMultiplier": 1.5
+        },
+        {
+            "entityType": "Animal_GallusGallusDomesticus",
+            "scoreValue": 1,
+            "enableVehicleKills": false
+        }
     ],
     "rewardThresholds": [20, 50, 100],
-    "deathPenalty": 0.3,
-    "resetKillsOnDeath": 1,
-    "resetRewardsOnDeath": 1
+    "deathPenalty": 0.1,
+    "resetKillsOnDeath": 0,
+    "resetRewardsOnDeath": 0
 }
 ```
 
